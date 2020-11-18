@@ -24,6 +24,28 @@ public class Straight : BaseRoad
         }
     }
 
+    protected override void HandleConnectedChanged(bool newValue)
+    {
+        if (newValue)
+        {
+            var animationPlayer = GetNode<AnimationPlayer>("AnimationPlayer");
+            animationPlayer.Play("Appear");
+            animationPlayer.Advance(0);
+            Visible = true;
+        }
+        else
+        {
+            var animationPlayer = GetNode<AnimationPlayer>("AnimationPlayer");
+            animationPlayer.Connect("animation_finished", this, nameof(HandleHidden), null, (uint)ConnectFlags.Oneshot);
+            animationPlayer.Play("Disappear");
+        }
+    }
+
+    public void HandleHidden(string animationName)
+    {
+        Visible = false;
+    }
+
     public override void HandleAreaEntered(Area2D area, RoadAreaType type)
     {
         base.HandleAreaEntered(area, type);
