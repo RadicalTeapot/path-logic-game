@@ -24,9 +24,24 @@ public class Straight : BaseRoad
         }
     }
 
-    protected override void HandleConnectedChanged(bool newValue)
+    public override bool UpdateConnected(bool connected)
     {
-        if (newValue)
+        bool updated = base.UpdateConnected(connected);
+        if (updated)
+            Animate(connected);
+        return updated;
+    }
+
+    private async void Animate(bool showRoad)
+    {
+        if (AnimationDelay > 0)
+        {
+            var timer = GetNode<Timer>("Timer");
+            timer.Start(AnimationDelay);
+            await ToSignal(timer, "timeout");
+        }
+
+        if (showRoad)
         {
             var animationPlayer = GetNode<AnimationPlayer>("AnimationPlayer");
             animationPlayer.Play("Appear");
@@ -36,14 +51,10 @@ public class Straight : BaseRoad
         else
         {
             var animationPlayer = GetNode<AnimationPlayer>("AnimationPlayer");
-            animationPlayer.Connect("animation_finished", this, nameof(HandleHidden), null, (uint)ConnectFlags.Oneshot);
             animationPlayer.Play("Disappear");
+            await ToSignal(animationPlayer, "animation_finished");
+            Visible = false;
         }
-    }
-
-    public void HandleHidden(string animationName)
-    {
-        Visible = false;
     }
 
     public override void HandleAreaEntered(Area2D area, RoadAreaType type)
