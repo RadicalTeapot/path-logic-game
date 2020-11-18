@@ -16,6 +16,7 @@ _global_script_class_icons={
 [application]
 
 config/name="Path Logic"
+run/main_scene="res://levels/5x5/level_1.tscn"
 
 [display]
 
