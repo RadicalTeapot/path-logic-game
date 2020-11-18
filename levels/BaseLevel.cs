@@ -8,7 +8,7 @@ public class BaseLevel : Node2D
         _roadChanged = true;
         var corners = GetNode("Road/Corners").GetChildren();
         foreach (Corner corner in corners)
-            corner.Connect(nameof(Corner.Rotated), this, nameof(HandleCornerRotated));
+            corner.Connect(nameof(Corner.ConnectionsChanged), this, nameof(HandleCornerRotated));
 
         var children = GetNode("Road/Straights").GetChildren();
         _straights = new List<Straight>();
@@ -38,6 +38,7 @@ public class BaseLevel : Node2D
 
     private void BuildRoad()
     {
+        GD.Print("Build road");
         var start = GetNode<Marker>("Road/Markers/Start");
         var end = GetNode<Marker>("Road/Markers/End");
         BaseRoad currentRoad = start;
@@ -48,8 +49,15 @@ public class BaseLevel : Node2D
             currentRoad = currentRoad.Next;
         }
 
+        int counter = 0;
+        float animDelay = 0.05f;
+        // TODO Re-order straight by their location in visited
         foreach (var straight in _straights)
-            straight.Connected = visited.Contains(straight);
+        {
+            straight.AnimationDelay = counter * animDelay;
+            if (straight.UpdateConnected(visited.Contains(straight)))
+                counter++;
+        }
 
         if (visited.Contains(end))
         {
