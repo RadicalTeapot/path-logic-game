@@ -2,9 +2,6 @@ using Godot;
 
 public class Corner : BaseRoad
 {
-    [Signal]
-    public delegate void Rotated();
-
     public override void _Ready()
     {
         GetNode<Area2D>("Click").Connect("input_event", this, nameof(Clicked));
@@ -12,26 +9,18 @@ public class Corner : BaseRoad
         base._Ready();
     }
 
-    public void Clicked(Node viewport, InputEvent @event, int shapeIDX)
+    public async void Clicked(Node viewport, InputEvent @event, int shapeIDX)
     {
         if (@event is InputEventMouseButton mouseButtonEvent)
         {
             if ((ButtonList)mouseButtonEvent.ButtonIndex == ButtonList.Left && mouseButtonEvent.Pressed)
             {
+                var animationPlayer = GetNode<AnimationPlayer>("AnimationPlayer");
+                animationPlayer.Play("Rotate");
+                await ToSignal(animationPlayer, "animation_finished");
                 RotationDegrees = (RotationDegrees + 90) % 360;
+                GetNode<Sprite>("RoadPiece").RotationDegrees = 0;
             }
         }
-    }
-
-    public override void HandleAreaEntered(Area2D area, RoadAreaType type)
-    {
-        base.HandleAreaEntered(area, type);
-        EmitSignal(nameof(Rotated));
-    }
-
-    public override void HandleAreaExited(Area2D area, RoadAreaType type)
-    {
-        base.HandleAreaExited(area, type);
-        EmitSignal(nameof(Rotated));
     }
 }
