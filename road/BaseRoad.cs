@@ -14,14 +14,7 @@ public class BaseRoad : Node2D
 
     public BaseRoad Next { get { return _next?.road; } }
 
-    public bool Connected {
-        get { return _connected; }
-        set {
-            if (value != _connected)
-                HandleConnectedChanged(value);
-            _connected = value;
-        }
-    }
+    public float AnimationDelay;
     [Signal] public delegate void ConnectionsChanged();
 
     public override void _Ready()
@@ -29,6 +22,7 @@ public class BaseRoad : Node2D
         _previous = null;
         _next = null;
         _connected = false;
+        AnimationDelay = 0;
         GetNode<Area2D>("Previous").Connect("area_entered", this, nameof(HandleAreaEntered), new Godot.Collections.Array{RoadAreaType.PREVIOUS});
         GetNode<Area2D>("Previous").Connect("area_exited", this, nameof(HandleAreaExited), new Godot.Collections.Array{RoadAreaType.PREVIOUS});
         GetNode<Area2D>("Next").Connect("area_entered", this, nameof(HandleAreaEntered), new Godot.Collections.Array{RoadAreaType.NEXT});
@@ -63,7 +57,12 @@ public class BaseRoad : Node2D
         }
     }
 
-    virtual protected void HandleConnectedChanged(bool newValue) {}
+    virtual public bool UpdateConnected(bool connected)
+    {
+        bool changed = _connected != connected;
+        _connected = connected;
+        return changed;
+    }
 
     protected ConnectedRoad _previous;
     protected ConnectedRoad _next;
