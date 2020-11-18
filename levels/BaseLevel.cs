@@ -9,6 +9,17 @@ public class BaseLevel : Node2D
         var corners = GetNode("Road/Corners").GetChildren();
         foreach (Corner corner in corners)
             corner.Connect(nameof(Corner.Rotated), this, nameof(HandleCornerRotated));
+
+        var children = GetNode("Road/Straights").GetChildren();
+        _straights = new List<Straight>();
+        foreach (var child in children)
+        {
+            if (child is Straight straight)
+                _straights.Add(straight);
+        }
+
+        foreach (var straight in _straights)
+            straight.Visible = false;
     }
 
     public void HandleCornerRotated()
@@ -27,8 +38,6 @@ public class BaseLevel : Node2D
 
     private void BuildRoad()
     {
-        // GD.Print("build road");
-        HideStraights();
         var start = GetNode<Marker>("Road/Markers/Start");
         var end = GetNode<Marker>("Road/Markers/End");
         BaseRoad currentRoad = start;
@@ -36,10 +45,12 @@ public class BaseLevel : Node2D
         while (currentRoad != null && !visited.Contains(currentRoad))
         {
             visited.Add(currentRoad);
-            currentRoad.Visible = true;
             currentRoad = currentRoad.Next;
-
         }
+
+        foreach (var straight in _straights)
+            straight.Connected = visited.Contains(straight);
+
         if (visited.Contains(end))
         {
             GD.Print("Level complete");
@@ -47,12 +58,6 @@ public class BaseLevel : Node2D
         visited.Clear();
     }
 
-    private void HideStraights()
-    {
-        var straights = GetNode("Road/Straights").GetChildren();
-        foreach (Straight straight in straights)
-            straight.Visible = false;
-    }
-
     private bool _roadChanged;
+    private List<Straight> _straights;
 }
