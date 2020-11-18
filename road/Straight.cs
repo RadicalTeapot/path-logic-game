@@ -7,6 +7,7 @@ public class Straight : BaseRoad
     private static readonly Texture _deadEndTexture = GD.Load<Texture>("res://assets/objects/road/dead_end.png");
     private void SetSprite()
     {
+        GD.Print($"Set sprite {Name}");
         var roadSprite = GetNode<Sprite>("RoadPiece");
         roadSprite.RotationDegrees = 0;
         if (_previous != null && _next == null)
@@ -22,6 +23,12 @@ public class Straight : BaseRoad
         {
             roadSprite.Texture = Straight._straightTexture;
         }
+    }
+
+    public override void _Ready()
+    {
+        base._Ready();
+        Connect(nameof(ConnectionsChanged), this, nameof(SetSprite));
     }
 
     public override bool UpdateConnected(bool connected)
@@ -55,19 +62,5 @@ public class Straight : BaseRoad
             await ToSignal(animationPlayer, "animation_finished");
             Visible = false;
         }
-    }
-
-    public override void HandleAreaEntered(Area2D area, RoadAreaType type)
-    {
-        base.HandleAreaEntered(area, type);
-        // GD.Print($"{Name} entered previous {_previous?.road.Name} next {_next?.road.Name}");
-        SetSprite();
-    }
-
-    public override void HandleAreaExited(Area2D area, RoadAreaType type)
-    {
-        base.HandleAreaExited(area, type);
-        // GD.Print($"{Name} exited previous {_previous?.road.Name} next {_next?.road.Name}");
-        SetSprite();
     }
 }
