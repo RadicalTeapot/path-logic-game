@@ -5,24 +5,14 @@ public class Straight : BaseRoad
 {
     private static readonly Texture _straightTexture = GD.Load<Texture>("res://assets/objects/road/straight.png");
     private static readonly Texture _deadEndTexture = GD.Load<Texture>("res://assets/objects/road/dead_end.png");
-    private void SetSprite()
+    private void SetSprite(string signalType, string nodeName, string roadName)
     {
-        GD.Print($"Set sprite {Name}");
+        GD.Print($"Set sprite {roadName} {signalType} {Name}");
         var roadSprite = GetNode<Sprite>("RoadPiece");
-        roadSprite.RotationDegrees = 0;
-        if (_previous != null && _next == null)
-        {
+        if (_connectedRoads.Count != 2)
             roadSprite.Texture = Straight._deadEndTexture;
-        }
-        else if (_previous == null && _next != null)
-        {
-            roadSprite.RotationDegrees = 180;
-            roadSprite.Texture = Straight._deadEndTexture;
-        }
         else
-        {
             roadSprite.Texture = Straight._straightTexture;
-        }
     }
 
     public override void _Ready()

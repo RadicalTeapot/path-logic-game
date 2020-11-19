@@ -1,6 +1,5 @@
-[gd_scene load_steps=11 format=2]
+[gd_scene load_steps=10 format=2]
 
-[ext_resource path="res://road/flipped_corner.tscn" type="PackedScene" id=1]
 [ext_resource path="res://assets/objects/scenery/rock1.png" type="Texture" id=2]
 [ext_resource path="res://assets/objects/scenery/barrier_red_race.png" type="Texture" id=3]
 [ext_resource path="res://assets/objects/scenery/tree_large.png" type="Texture" id=4]
@@ -49,16 +48,16 @@ rotation = -3.14159
 position = Vector2( 576, 192 )
 rotation = 1.5708
 
-[node name="Corner3" parent="Road/Corners" index="1" instance=ExtResource( 9 )]
+[node name="Corner5" parent="Road/Corners" index="1" instance=ExtResource( 9 )]
+position = Vector2( 320, 192 )
+rotation = 4.7124
+
+[node name="Corner3" parent="Road/Corners" index="2" instance=ExtResource( 9 )]
 position = Vector2( 320, 64 )
 rotation = -4.7124
 
-[node name="Corner4" parent="Road/Corners" index="2" instance=ExtResource( 9 )]
+[node name="Corner4" parent="Road/Corners" index="3" instance=ExtResource( 9 )]
 position = Vector2( 64, 64 )
-
-[node name="FlippedCorner" parent="Road/Corners" index="3" instance=ExtResource( 1 )]
-position = Vector2( 320, 192 )
-rotation = -1.5708
 
 [node name="Start" parent="Road/Markers" index="0"]
 position = Vector2( 576, 576 )

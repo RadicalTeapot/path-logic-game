@@ -1,59 +1,36 @@
+using System.Collections.Generic;
 using Godot;
 
 public class BaseRoad : Node2D
 {
-    public enum RoadAreaType {
-        PREVIOUS,
-        NEXT
-    }
-    protected class ConnectedRoad
-    {
-        public BaseRoad road = null;
-        public Area2D area = null;
-    }
-
-    public BaseRoad Next { get { return _next?.road; } }
+    public List<BaseRoad> ConnectedRoads { get { return _connectedRoads; } }
 
     public float AnimationDelay;
-    [Signal] public delegate void ConnectionsChanged();
+    [Signal] public delegate void ConnectionsChanged(string signalType, string nodeName, string roadName);
 
     public override void _Ready()
     {
-        _previous = null;
-        _next = null;
+        _connectedRoads = new List<BaseRoad>();
         _connected = false;
         AnimationDelay = 0;
-        GetNode<Area2D>("Previous").Connect("area_entered", this, nameof(HandleAreaEntered), new Godot.Collections.Array{RoadAreaType.PREVIOUS});
-        GetNode<Area2D>("Previous").Connect("area_exited", this, nameof(HandleAreaExited), new Godot.Collections.Array{RoadAreaType.PREVIOUS});
-        GetNode<Area2D>("Next").Connect("area_entered", this, nameof(HandleAreaEntered), new Godot.Collections.Array{RoadAreaType.NEXT});
-        GetNode<Area2D>("Next").Connect("area_exited", this, nameof(HandleAreaExited), new Godot.Collections.Array{RoadAreaType.NEXT});
+        GetNode<Area2D>("Connections").Connect("area_entered", this, nameof(HandleAreaEntered));
+        GetNode<Area2D>("Connections").Connect("area_exited", this, nameof(HandleAreaExited));
     }
 
-    virtual public void HandleAreaEntered(Area2D area, RoadAreaType type)
+    virtual public void HandleAreaEntered(Area2D area)
     {
-        Node areaParent = area.GetParent();
-        if (type == RoadAreaType.PREVIOUS && areaParent is BaseRoad previousParent)
+        if (area.GetParent() is BaseRoad road && !_connectedRoads.Contains(road))
         {
-            _previous = new ConnectedRoad { road = previousParent, area = area };
-            EmitSignal(nameof(ConnectionsChanged));
-        }
-        else if (type == RoadAreaType.NEXT && areaParent is BaseRoad nextParent)
-        {
-            _next = new ConnectedRoad { road = nextParent, area = area };
-            EmitSignal(nameof(ConnectionsChanged));
+            _connectedRoads.Add(road);
+            EmitSignal(nameof(ConnectionsChanged), "entered", Name, road.Name);
         }
     }
-    virtual public void HandleAreaExited(Area2D area, RoadAreaType type)
+    virtual public void HandleAreaExited(Area2D area)
     {
-        if (type == RoadAreaType.PREVIOUS && _previous.area == area)
+        if (area.GetParent() is BaseRoad road && _connectedRoads.Contains(road))
         {
-            _previous = null;
-            EmitSignal(nameof(ConnectionsChanged));
-        }
-        else if (type == RoadAreaType.NEXT && _next.area == area)
-        {
-            _next = null;
-            EmitSignal(nameof(ConnectionsChanged));
+            _connectedRoads.Remove(road);
+            EmitSignal(nameof(ConnectionsChanged), "exited", Name, road.Name);
         }
     }
 
@@ -64,7 +41,6 @@ public class BaseRoad : Node2D
         return changed;
     }
 
-    protected ConnectedRoad _previous;
-    protected ConnectedRoad _next;
+    protected List<BaseRoad> _connectedRoads;
     protected bool _connected;
 }
